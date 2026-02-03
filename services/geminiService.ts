@@ -5,6 +5,7 @@ import { DriveFile, Professional } from "../types";
 export interface AIAdviceResponse {
   text: string;
   images: string[];
+  groundingSources?: { title: string; uri: string }[];
 }
 
 export class GeminiService {
@@ -90,9 +91,23 @@ export class GeminiService {
       }
     }
 
+    // Extract grounding metadata for display on the web app as per mandatory requirements
+    const groundingSources: { title: string; uri: string }[] = [];
+    if (response.candidates?.[0]?.groundingMetadata?.groundingChunks) {
+      for (const chunk of response.candidates[0].groundingMetadata.groundingChunks) {
+        if (chunk.web) {
+          groundingSources.push({
+            title: chunk.web.title,
+            uri: chunk.web.uri
+          });
+        }
+      }
+    }
+
     return {
       text: extractedText || "Neural link established.",
-      images: extractedImages
+      images: extractedImages,
+      groundingSources
     };
   }
 

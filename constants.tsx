@@ -85,29 +85,33 @@ export const INITIAL_PROJECTS: Project[] = [
   {
     id: 'proj_1',
     title: 'Modern Patio Deck',
-    status: 'in-progress',
-    lastUpdated: '2 hours ago',
+    status: 'completed',
+    lastUpdated: 'Completed',
     summary: 'Building a 12x12 cedar deck with integrated LED lighting.',
     assignedProId: '1',
-    // Fix: Using correct property name 'aiMessages' instead of 'messages' and added missing 'files' property
+    assignedProName: 'Marcus Thorne',
     aiMessages: [],
     expertMessages: [],
     media: [],
     files: [],
-    summaries: []
+    summaries: [
+      { id: 's1', title: 'Final Build Report', content: 'Deck construction verified. Electrical integration for LEDs completed safely.', date: 'Oct 2023' }
+    ]
   },
   {
     id: 'proj_2',
     title: 'Kitchen Backsplash',
     status: 'completed',
-    lastUpdated: 'Yesterday',
+    lastUpdated: 'Completed',
     summary: 'Installed herringbone subway tiles with dark grout.',
     assignedProId: '2',
-    // Fix: Using correct property name 'aiMessages' instead of 'messages' and added missing 'files' property
+    assignedProName: 'Sarah Chen',
     aiMessages: [],
     expertMessages: [],
     media: [],
     files: [],
-    summaries: []
+    summaries: [
+      { id: 's2', title: 'Aesthetic Verification', content: 'Grout lines checked and sealed. Pattern alignment exceeds standard tolerances.', date: 'Nov 2023' }
+    ]
   }
 ];

@@ -7,7 +7,8 @@ export enum AppView {
   EXPERT_POOL = 'expert_pool',
   EXPERT_PROJECTS = 'expert_projects',
   PORTFOLIO = 'portfolio',
-  CALL = 'call'
+  CALL = 'call',
+  CLIENT_SETTINGS = 'client_settings'
 }
 
 export interface Collection {
@@ -72,6 +73,16 @@ export interface Review {
   };
 }
 
+export interface Invoice {
+  id: string;
+  amount: number;
+  type: 'hourly' | 'fixed';
+  rateLabel: string; // e.g., "$85/hr" or "Total Project Fee"
+  description: string;
+  status: 'pending' | 'paid';
+  createdAt: string;
+}
+
 export interface Professional {
   id: string;
   name: string;
@@ -110,6 +121,7 @@ export interface Project {
   media: ProjectMedia[];
   files: DriveFile[];
   summaries: { id: string, title: string, content: string, date: string }[];
+  invoice?: Invoice;
 }
 
 export interface ChatMessage {
@@ -120,4 +132,6 @@ export interface ChatMessage {
   canvasSnapshot?: string;
   generatedImages?: string[];
   attachedFiles?: DriveFile[];
+  // Grounding sources extracted from Google Search tools
+  groundingSources?: { title: string; uri: string }[];
 }

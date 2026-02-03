@@ -54,7 +54,8 @@ export class LiveCallSession {
   async start(
     callbacks: { onMessage: (msg: string) => void; onClose: () => void },
     videoElement?: HTMLVideoElement,
-    projectContext?: string
+    projectContext?: string,
+    initialStream?: MediaStream
   ) {
     // Initialize GoogleGenAI only when starting a session
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
@@ -62,11 +63,15 @@ export class LiveCallSession {
     this.inputAudioContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
     this.outputAudioContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
     
-    const constraints = { audio: true, video: videoElement ? { facingMode: 'environment' } : false };
-    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+    // Use provided stream or fallback to camera
+    const stream = initialStream || await navigator.mediaDevices.getUserMedia({ 
+      audio: true, 
+      video: videoElement ? { facingMode: 'environment' } : false 
+    });
+    
     this.audioStream = stream;
 
-    if (videoElement && constraints.video) {
+    if (videoElement) {
       videoElement.srcObject = stream;
     }
 
@@ -85,7 +90,7 @@ export class LiveCallSession {
       model: 'gemini-2.5-flash-native-audio-preview-12-2025',
       callbacks: {
         onopen: () => {
-          const source = this.inputAudioContext!.createMediaStreamSource(stream);
+          const source = this.inputAudioContext!.createMediaStreamSource(this.audioStream!);
           const scriptProcessor = this.inputAudioContext!.createScriptProcessor(4096, 1, 1);
           scriptProcessor.onaudioprocess = (e) => {
             const inputData = e.inputBuffer.getChannelData(0);
@@ -165,6 +170,15 @@ export class LiveCallSession {
     return this.sessionPromise;
   }
 
+  // Allow switching streams (e.g. from camera to screen share) without closing session
+  updateStream(newStream: MediaStream, videoElement?: HTMLVideoElement) {
+    if (videoElement) {
+      videoElement.srcObject = newStream;
+    }
+    this.audioStream = newStream;
+  }
+
+  // Properly close the Live API session and release resources.
   stop() {
     if (this.videoInterval) clearInterval(this.videoInterval);
     this.audioStream?.getTracks().forEach(t => t.stop());
@@ -173,5 +187,6 @@ export class LiveCallSession {
     this.sources.forEach(s => {
         try { s.stop(); } catch(e) {}
     });
+    this.sessionPromise?.then(session => session.close());
   }
 }
